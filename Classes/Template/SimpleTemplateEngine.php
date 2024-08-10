@@ -78,6 +78,12 @@ class SimpleTemplateEngine {
         return false;
     }
 
+    /**
+     * Sets a different template file extension (default: .html)
+     *
+     * @param string $templateExtension
+     * @return void
+     */
     public function setTemplateExtension(string $templateExtension): void {
         $this->templateFileExt = str_starts_with($templateExtension, '.') ? $templateExtension : '.' . $templateExtension;
     }
