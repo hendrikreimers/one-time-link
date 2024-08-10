@@ -20,9 +20,15 @@ $shortUrl = extractShortUrl();
 $fileName = __DIR__ . '/data/' . $shortUrl . '.url'; // Prepare the file name
 
 if (file_exists($fileName)) {
-    $targetUrl = file_get_contents($fileName);
-    unlink($fileName); // Delete file so that the URL can only be called up once
-    
+    // Load the data
+    $shortUrlData = getShortUrlData($fileName);
+    $targetUrl = $shortUrlData['targetUrl'];
+    $notify = (bool)$shortUrlData['notify'];
+    $identifier = $shortUrlData['identifier'];
+
+    // Delete file so that the URL can only be called up once
+    unlink($fileName);
+
     // Check whether the URL begins with http:// or https://
     if (!preg_match('/^https?:\/\/.+/', $targetUrl)) {
         echo "URL must start with http:// or https://";
@@ -41,6 +47,11 @@ if (file_exists($fileName)) {
     
     // Send Nonce Header
     $nonce = sendAndGetNonce();
+
+    // Send notification
+    if ( $notify ) {
+        sendNotification($shortUrl, $targetUrl, $identifier);
+    }
 } else {
     // Show not found
     header("HTTP/1.0 404 Not Found");
@@ -63,6 +74,7 @@ if (file_exists($fileName)) {
     ]);
     exit;
 }
+
 ?>
 <!DOCTYPE html>
 <html id="redirect">
@@ -73,7 +85,7 @@ if (file_exists($fileName)) {
   <meta http-equiv="expires" content="0" />
   <meta http-equiv="expires" content="Sat, 01 Jan 2000 1:00:00 GMT" />
   <meta http-equiv="pragma" content="no-cache" />
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="style.css" nonce="<?= $nonce ?>">
 </head>
 <body>
   Redirecting...

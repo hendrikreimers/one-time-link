@@ -20,6 +20,8 @@ This project provides a simple URL shortening service with a one-time use featur
 - **Crawler Prevention**: Prevents crawlers and bots from accessing the one-time URLs, preserving their one-time nature.
 - **Custom Nonce Handling**: Uses CSP with nonce to protect against script injection attacks.
 - **Obfuscation**: The target URL will be obfuscated, to prevent it from being saved in the browsers history.
+- **Notifications**: Optional E-Mail notifications if the ShortURL is hit.
+- **Dot Env File**: Support for .env file for configuration, like notifications.
 
 ## Usage
 
@@ -48,6 +50,23 @@ This project provides a simple URL shortening service with a one-time use featur
 3. Configure your `.htpasswd` for securing the `create.php` file: `htpasswd -c ./data/.htpasswd YOUR_USERNAME`
 4. Rename `_htaccess` to `.htaccess` in this project directory and your `data` directory.
 5. Access `create.php` to start creating short URLs.
+
+## DotEnv File
+
+If you like to modify or extend the configuration, or just set the notification mechanism.
+Here's an example .env file you need to place in the same folder of this project files on your web server.
+
+    TRANSFORM_TARGET_EXPR="=\/\/www.only-on-this-domain.com\/=i"
+    TRANSFORM_TARGET_SEARCH="/your-folder/"
+    TRANSFORM_TARGET_REPLACE="/your-folder/subfolder/"
+    
+    TRANSFORM_SHORT_EXPR="=\/\/your-folder\/=i"
+    TRANSFORM_SHORT_SEARCH="/your-folder/"
+    TRANSFORM_SHORT_REPLACE="/your-folder/sub-folder/"
+        
+    NOTIFICATION_EMAIL="webmaster@your-domain.com"
+    NOTIFICATION_SUBJECT="One Time Link - Event"
+    NOTIFICATION_MESSAGE="IDENTIFIER: ###IDENTIFIER###\n\nSHORT: ###SHORT_URL###\n\nTARGET: ###TARGET_URL###"
 
 ## License
 

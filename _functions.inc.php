@@ -39,9 +39,37 @@ function extractShortUrl(): string {
  * @param string $targetUrl
  * @return void
  */
-function saveUrl(string $shortUrl, string $targetUrl): void {
-    $fileName = __DIR__ . '/data/' . $shortUrl . '.url';
-    file_put_contents($fileName, trim($targetUrl));
+function saveUrl(string $shortUrl, string $targetUrl, bool $notify = false, string $identifier = ''): void {
+    $fileName = __DIR__ . '/data/' . trim($shortUrl) . '.url';
+
+    $data = json_encode([
+        'targetUrl' => $targetUrl,
+        'notify' => $notify,
+        'identifier' => $identifier
+    ]);
+
+    file_put_contents($fileName, trim($data));
+}
+
+/**
+ * Loads data for a ShortURL saved in file.
+ * If it's the old format creates a data array.
+ *
+ * @param string $fileName
+ * @return array
+ */
+function getShortUrlData(string $fileName): array {
+    $data = file_get_contents($fileName);
+
+    if ( json_validate($data) ) {
+        $result = json_decode($data, true);
+    } else $result = [
+        'targetUrl' => $data,
+        'notify' => false,
+        'identifier' => ''
+    ];
+
+    return $result;
 }
 
 /**
@@ -156,6 +184,22 @@ function preventCrawlers(): void {
 /**
  * Loads enviroment file (.env)
  *
+ * Example content of .env file:
+ *
+ * ```
+ * TRANSFORM_TARGET_EXPR="\/\/your-domain.com\/"
+ * TRANSFORM_TARGET_SEARCH="/a-folder/"
+ * TRANSFORM_TARGET_REPLACE="/a-folder/subfolder/"
+ *
+ * TRANSFORM_SHORT_EXPR="\/a-folder\/"
+ * TRANSFORM_SHORT_SEARCH=/a-folder/
+ * TRANSFORM_SHORT_REPLACE=/a-folder/subfolder/
+ *
+ * NOTIFICATION_EMAIL=you@somewhere.com
+ * NOTIFICATION_SUBJECT="One Time Link - Event"
+ * NOTIFICATION_MESSAGE="SHORT: '###SHORT_URL###'\nTARGET: '###TARGET_URL###'"
+ * ```
+ *
  * @return bool
  */
 function loadDotEnv(): bool {
@@ -167,17 +211,6 @@ function loadDotEnv(): bool {
         $envContent = file_get_contents($envFile);
 
         // Parse .env file
-        //
-        // Example content:
-        //
-        //   TRANSFORM_TARGET_EXPR="\/\/your-domain.com\/"
-        //   TRANSFORM_TARGET_SEARCH="/a-folder/"
-        //   TRANSFORM_TARGET_REPLACE="/a-folder/subfolder/"
-        //
-        //   TRANSFORM_SHORT_EXPR="\/a-folder\/"
-        //   TRANSFORM_SHORT_SEARCH=/a-folder/
-        //   TRANSFORM_SHORT_REPLACE=/a-folder/subfolder/
-        //
         if (preg_match_all('/([A-Z_]+)="?(.*[^"\r\n])"?/m', $envContent, $matches)) {
             foreach ($matches[1] as $index => $key) {
                 define(strtoupper($key), $matches[2][$index]);
@@ -188,4 +221,27 @@ function loadDotEnv(): bool {
     }
 
     return false;
+}
+
+/**
+ * Sends a notification mail if set in .env file
+ *
+ * @param string $shortUrl
+ * @param string $targetUrl
+ * @return void
+ */
+function sendNotification(string $shortUrl, string $targetUrl, string $identifier = ''): void {
+    if (
+        defined('NOTIFICATION_EMAIL') &&
+        defined('NOTIFICATION_SUBJECT') &&
+        defined('NOTIFICATION_MESSAGE')
+    ) {
+        $search = ['###IDENTIFIER###', '###SHORT_URL###', '###TARGET_URL###', '\n'];
+        $replace = [$identifier, $shortUrl, $targetUrl, PHP_EOL];
+        $to = NOTIFICATION_EMAIL;
+        $subject = NOTIFICATION_SUBJECT;
+        $txt = str_replace($search, $replace, NOTIFICATION_MESSAGE);
+
+        mail($to,$subject,$txt);
+    }
 }
