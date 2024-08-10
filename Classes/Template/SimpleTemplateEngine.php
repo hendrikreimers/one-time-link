@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Template;
 
+use Exception;
 use Helper\General;
 
 /**
@@ -73,7 +74,7 @@ class SimpleTemplateEngine {
         // Load template content if file exists
         if ( file_exists($filePathAndName) ) {
             $this->template = file_get_contents($filePathAndName);
-        } else throw new \Exception('Template file not found: ' . $filePathAndName);
+        } else throw new Exception('Template file not found: ' . $filePathAndName);
 
         return false;
     }
