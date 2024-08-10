@@ -6,41 +6,37 @@ declare(strict_types=1);
  * Whatever your reason is, to do that.
  * 
  */
- 
- /*
- // Custom ShortURL transformation
- function transformShortUrl($shortUrl): string {
-	 // Your transformation logic for the shortURL
- }
- */
+
+// Custom ShortURL transformation
+function transformShortUrl($shortUrl): string {
+    // Do something if .env data
+    if (
+        defined('TRANSFORM_SHORT_EXPR') &&
+        defined('TRANSFORM_SHORT_SEARCH') &&
+        defined('TRANSFORM_SHORT_REPLACE')
+    ) {
+        // Modify URL by given search/replace defined in .env
+        if ( preg_match(TRANSFORM_SHORT_EXPR, $shortUrl) ) {
+            return str_replace(TRANSFORM_SHORT_SEARCH, TRANSFORM_SHORT_REPLACE, $shortUrl);
+        }
+    }
+
+    // Nothing changed return
+    return $shortUrl;
+}
+
  
  // Custom TargetURL transformation
 function transformTargetUrl($targetUrl): string {
-    // Path to .env file
-    $envFile = __DIR__ . DIRECTORY_SEPARATOR . '.env';
-
-    // Do something if .env exists
-    if ( file_exists($envFile)) {
-        $envContent = file_get_contents($envFile);
-        $env = [];
-
-        // Parse .env file
-        //
-        // Example content:
-        //
-        //   TRANSFORM_TARGET_EXPR="\/\/your-domain.com\/"
-        //   TRANSFORM_TARGET_SEARCH="/a-folder/"
-        //   TRANSFORM_TARGET_REPLACE="/a-folder/subfolder/"
-        //
-        if ( preg_match_all('/([A-Z_]+)="(.*)"/mi', $envContent, $matches) ) {
-            foreach ( $matches[1] as $index => $key ) {
-                $env[trim($key)] = $matches[2][$index];
-            }
-        }
-
+    // Do something if .env data
+    if (
+        defined('TRANSFORM_TARGET_EXPR') &&
+        defined('TRANSFORM_TARGET_SEARCH') &&
+        defined('TRANSFORM_TARGET_REPLACE')
+    ) {
         // Modify URL by given search/replace defined in .env
-        if ( preg_match('=' . $env['TRANSFORM_TARGET_EXPR'] . '=i', $targetUrl) ) {
-            return str_replace($env['TRANSFORM_TARGET_SEARCH'], $env['TRANSFORM_TARGET_REPLACE'], $targetUrl);
+        if ( preg_match(TRANSFORM_TARGET_EXPR, $targetUrl) ) {
+            return str_replace(TRANSFORM_TARGET_SEARCH, TRANSFORM_TARGET_REPLACE, $targetUrl);
         }
     }
 

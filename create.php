@@ -1,8 +1,13 @@
 <?php
 declare(strict_types=1);
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once('_functions.inc.php');
 if ( file_exists('_custom.inc.php') ) require_once('_custom.inc.php');
+
+// Loads .env file constants
+loadDotEnv();
 
 // Force HTTPS
 forceHttps();
@@ -14,10 +19,10 @@ sendDefaultHeaders();
 preventCrawlers();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	// Validate input
+    // Validate input
     $targetUrl = filter_input(INPUT_POST, 'url', FILTER_VALIDATE_URL);
 
-	// Show error
+    // Show error
     if ($targetUrl === false) {
         echo "Wrong URL";
         exit;
@@ -35,26 +40,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Wrong URL";
         exit;
     }
-	
+    
     // Generate short URL
     $shortUrl = generateShortUrl();
-	
-	// Custom transformations
-	if ( function_exists('transformShortUrl') ) {
-		$shortUrl = transformShortUrl($shortUrl);
-	}
-	if ( function_exists('transformTargetUrl') ) {
-		$targetUrl = transformTargetUrl($targetUrl);
-	}
-	
-	// Save the shortURL with the targetURL
+    
+    // Custom transformations
+    if ( function_exists('transformShortUrl') ) {
+        $shortUrl = transformShortUrl($shortUrl);
+    }
+    if ( function_exists('transformTargetUrl') ) {
+        $targetUrl = transformTargetUrl($targetUrl);
+    }
+    
+    // Save the shortURL with the targetURL
     saveUrl($shortUrl, $targetUrl);
 
     // Get Base-URL
     $baseUrl = getServerUrl();
-	
-	// Send nonce headers
-	$nonce = sendAndGetNonce();
+    
+    // Send nonce headers
+    $nonce = sendAndGetNonce();
 }
 ?>
 <!DOCTYPE html>
