@@ -48,6 +48,7 @@ if (file_exists($fileName)) {
         '<!DOCTYPE html>',
         '<html id="redirect" lang="en-EN">',
         '<head>',
+        '  <meta name="viewport" content="width=device-width, initial-scale=1" />',
         '  <meta http-equiv="cache-control" content="max-age=0" />',
         '  <meta http-equiv="cache-control" content="no-cache" />',
         '  <meta http-equiv="expires" content="0" />',
@@ -66,6 +67,7 @@ if (file_exists($fileName)) {
 <!DOCTYPE html>
 <html id="redirect">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="cache-control" content="max-age=0" />
   <meta http-equiv="cache-control" content="no-cache" />
   <meta http-equiv="expires" content="0" />

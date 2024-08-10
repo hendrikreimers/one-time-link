@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="cache-control" content="max-age=0" />
   <meta http-equiv="cache-control" content="no-cache" />
   <meta http-equiv="expires" content="0" />
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php if ($_SERVER['REQUEST_METHOD'] !== 'POST') { ?>
   <form method="post">
     <input type="url" name="url" required>
-    <button type="submit">Erstellen</button>
+    <button type="submit">Create</button>
   </form>
 <?php } else { ?>
   <div>
