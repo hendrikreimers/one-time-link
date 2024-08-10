@@ -48,8 +48,8 @@ This project provides a simple URL shortening service with a one-time use featur
 1. Place the project files on your web server.
 2. Ensure the `data/` directory is writable by the web server user, as this is where URL mappings are stored.
 3. Configure your `.htpasswd` for securing the `create.php` file: `htpasswd -c ./data/.htpasswd YOUR_USERNAME`
-4. Rename `_htaccess` to `.htaccess` in this project directory and your `data` directory.
-5. Access `create.php` to start creating short URLs.
+5. Modify `.htacces` in project folder on web server to set the **absolute path** to your .htpasswd file
+4. Access `create.php` to start creating short URLs.
 
 ## DotEnv File
 

@@ -1,6 +1,7 @@
 RewriteEngine On
 
 AddDefaultCharset UTF-8
+Options -Indexes
 
 # If the file or folder exists, do not rewrite the request
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -29,7 +30,20 @@ Header set Referrer-Policy "no-referrer"
     Require valid-user
 </Files>
 
-<FilesMatch "(\.inc\.php|\.md|LICENSE)$">
+# Ends with...
+<FilesMatch "(\.inc\.php|\.md)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Starts with...
+<FilesMatch "^([_.])">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Additional files
+<FilesMatch "^(LICENSE|bootstrap.php|Resources/Private/)$">
     Order deny,allow
     Deny from all
 </FilesMatch>
