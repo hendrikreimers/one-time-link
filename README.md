@@ -66,7 +66,6 @@ Here's an example .env file you need to place in the same folder of this project
         
     NOTIFICATION_EMAIL="webmaster@your-domain.com"
     NOTIFICATION_SUBJECT="One Time Link - Event"
-    NOTIFICATION_MESSAGE="IDENTIFIER: ###IDENTIFIER###\n\nSHORT: ###SHORT_URL###\n\nTARGET: ###TARGET_URL###"
 
 ## License
 
