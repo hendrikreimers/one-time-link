@@ -40,14 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Save the shortURL with the targetURL
     ShortUrl::saveUrl($shortUrl, $targetUrl, (bool)$notify, $identifier);
 
-    // Get Base-URL
-    $baseUrl = Url::getServerUrl();
-
     // Load template and set variables
     $template->loadTemplate('create-result');
     $template->assignMultiple([
         'BASE_PATH' => Url::getBaseUri(),
-        'BASE_URL' => $baseUrl,
+        'BASE_URL' => Url::getServerUrl(),
         'SHORT_URL' => $shortUrl,
         'NONCE' => $nonce
     ]);

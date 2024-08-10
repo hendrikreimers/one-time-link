@@ -71,4 +71,24 @@ class ShortUrl {
         return $result;
     }
 
+    /**
+     * Returns the full path of the shortURL Data file
+     *
+     * @param string $shortUrl
+     * @return string
+     */
+    public static function getShortUrlDataFilePath(string $shortUrl): string {
+        return General::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
+    }
+
+    /**
+     * Deletes the shortURL Data file
+     *
+     * @param string $shortUrl
+     * @return void
+     */
+    public static function removeShortUrl(string $shortUrl): void {
+        unlink(General::getCallerPath() . '/data/' . trim($shortUrl) . '.url');
+    }
+
 }

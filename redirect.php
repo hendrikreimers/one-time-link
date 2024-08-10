@@ -14,7 +14,7 @@ use Validation\FormValidation;
 
 // Extract the short URL from current URL
 $shortUrl = ShortUrl::extractShortUrl();
-$fileName = __DIR__ . '/data/' . $shortUrl . '.url'; // Prepare the file name
+$fileName = ShortUrl::getShortUrlDataFilePath($shortUrl); // Prepare the file name
 
 // Initialize Template Engine
 $template = new SimpleTemplateEngine();
@@ -27,7 +27,7 @@ if (file_exists($fileName)) {
     $identifier = $shortUrlData['identifier'];
 
     // Delete file so that the URL can only be called up once
-    unlink($fileName);
+    ShortUrl::removeShortUrl($shortUrl);
 
     // Check targetURL
     FormValidation::urlCorrectOrExit($targetUrl);
@@ -38,17 +38,20 @@ if (file_exists($fileName)) {
     // Send Nonce Header
     $nonce = SecurityHelper::sendAndGetNonce();
 
-    // Send notification
+    // Send notification mail
     if ( $notify ) {
         Sendmail::sendNotification($shortUrl, $targetUrl, $identifier);
     }
 
+    // Load template and set variables
     $template->loadTemplate('redirect');
     $template->assignMultiple([
         'BASE_PATH' => Url::getBaseUri(),
         'DATA_ATTR_URL' => $dataAttrUrl,
         'NONCE' => $nonce
     ]);
+
+    // Send rendered template to browser
     echo $template->render();
 } else {
     // Error handling
