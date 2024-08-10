@@ -7,11 +7,11 @@ This project provides a simple URL shortening service with a one-time use featur
 
 - `create.php`: Handles the creation of short URLs.
 - `redirect.php`: Redirects the user based on the short URL and deletes the mapping after use.
-- `_functions.inc.php`: Contains utility functions for URL creation, redirection, security, and more.
 - `_custom.inc.php`: Optional file for custom transformations of the short and target URLs.
 - `.htaccess`: Configures URL rewriting and enhances security with various HTTP headers.
-- `script.js`: Contains client-side logic for handling redirection and user interaction.
-- `style.css`: Placeholder for styling.
+- `Classes`: Folder for Classes to handle Security, Creating and anything else.
+- `Ressources`: Folder for static files like Templates, Styles and JavaScript.
+- `data`: Folder for storing the created ShortURL and Targets.
 
 ## Security Features
 
