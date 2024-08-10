@@ -21,7 +21,6 @@ class DotEnv {
      *
      * NOTIFICATION_EMAIL=you@somewhere.com
      * NOTIFICATION_SUBJECT="One Time Link - Event"
-     * NOTIFICATION_MESSAGE="SHORT: '###SHORT_URL###'\nTARGET: '###TARGET_URL###'"
      * ```
      *
      * @return bool

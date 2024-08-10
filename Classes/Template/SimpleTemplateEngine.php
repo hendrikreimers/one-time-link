@@ -78,6 +78,10 @@ class SimpleTemplateEngine {
         return false;
     }
 
+    public function setTemplateExtension(string $templateExtension): void {
+        $this->templateFileExt = str_starts_with($templateExtension, '.') ? $templateExtension : '.' . $templateExtension;
+    }
+
     /**
      * Just returns a template content without rendering or whatever
      *

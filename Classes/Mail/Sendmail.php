@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Mail;
 
+use Exception;
+use Template\SimpleTemplateEngine;
+
 class Sendmail {
 
     /**
@@ -12,6 +15,7 @@ class Sendmail {
      * @param string $targetUrl
      * @param string $identifier
      * @return void
+     * @throws Exception
      */
     public static function sendNotification(string $shortUrl, string $targetUrl, string $identifier = ''): void {
         if (
@@ -19,13 +23,26 @@ class Sendmail {
             defined('NOTIFICATION_SUBJECT') &&
             defined('NOTIFICATION_MESSAGE')
         ) {
-            $search = ['###IDENTIFIER###', '###SHORT_URL###', '###TARGET_URL###', '\n'];
-            $replace = [$identifier, $shortUrl, $targetUrl, PHP_EOL];
             $to = NOTIFICATION_EMAIL;
             $subject = NOTIFICATION_SUBJECT;
-            $txt = str_replace($search, $replace, NOTIFICATION_MESSAGE);
 
-            mail($to,$subject,$txt);
+            // Load Mail template
+            $template = new SimpleTemplateEngine();
+            $template->setTemplateExtension('.txt');
+            $template->loadTemplate('mail');
+
+            // Set template variables
+            $template->assignMultiple([
+                'IDENTIFIER' => rawurldecode($identifier),
+                'SHORT_URL' => $shortUrl,
+                'TARGET_URL' => $targetUrl
+            ]);
+
+            // Render template
+            $msg = $template->render();
+
+            // Send mail
+            mail($to,$subject,$msg);
         }
     }
 
