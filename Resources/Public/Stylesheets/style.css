@@ -10,12 +10,14 @@ html, body {
     overflow: hidden;
     background: linear-gradient(0deg, rgb(232, 232, 232) 0%, rgb(200, 200, 200) 100%) no-repeat;
     background-size: cover;
-    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    padding: 10px;
     text-align: center;
+    height: 100%;
+    padding: 10px 10px 30px;
 }
 
 html#redirect,
@@ -24,6 +26,7 @@ html#redirect body {
     color: #fff;
     text-transform: uppercase;
     letter-spacing: 5px;
+    overflow-y: auto;
 }
 
 
