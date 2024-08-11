@@ -26,9 +26,36 @@ html#redirect body {
     letter-spacing: 5px;
 }
 
+
+
+/**
+ * -----------------------
+ * 404 Content
+ */
+
 img {
     max-width: 100%;
     height: auto;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul li {
+    font-size: .85rem;
+    margin: 10px 0;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+ul li::before,
+ul li::after {
+    content: 'X';
+    margin: 0 10px;
+    color: rgba(255, 255, 255, 0.13);
 }
 
 
