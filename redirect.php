@@ -6,15 +6,15 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes
 use Helper\SecurityHelper;
-use Helper\Url;
+use Helper\UrlHelper;
 use Mail\Sendmail;
-use Service\ShortUrl;
+use Service\ShortUrlService;
 use Template\SimpleTemplateEngine;
 use Validation\FormValidation;
 
 // Extract the short URL from current URL
-$shortUrl = ShortUrl::extractShortUrl();
-$fileName = ShortUrl::getShortUrlDataFilePath($shortUrl); // Prepare the file name
+$shortUrl = ShortUrlService::extractShortUrl();
+$fileName = ShortUrlService::getShortUrlDataFilePath($shortUrl); // Prepare the file name
 
 // Initialize Template Engine
 $template = new SimpleTemplateEngine();
@@ -24,13 +24,13 @@ $nonce = SecurityHelper::sendAndGetNonce();
 
 if (file_exists($fileName)) {
     // Load the data
-    $shortUrlData = ShortUrl::getShortUrlData($fileName);
+    $shortUrlData = ShortUrlService::getShortUrlData($fileName);
     $targetUrl = $shortUrlData['targetUrl'];
     $notify = (bool)$shortUrlData['notify'];
     $identifier = $shortUrlData['identifier'];
 
     // Delete file so that the URL can only be called up once
-    ShortUrl::removeShortUrl($shortUrl);
+    ShortUrlService::removeShortUrl($shortUrl);
 
     // Check targetURL
     FormValidation::urlCorrectOrExit($targetUrl);
@@ -46,7 +46,7 @@ if (file_exists($fileName)) {
     // Load template and set variables
     $template->loadTemplate('redirect');
     $template->assignMultiple([
-        'BASE_PATH' => Url::getBaseUri(),
+        'BASE_PATH' => UrlHelper::getBaseUri(),
         'DATA_ATTR_URL' => $dataAttrUrl,
         'NONCE' => $nonce
     ]);
@@ -60,7 +60,7 @@ if (file_exists($fileName)) {
 
     $template->loadTemplate('404');
     $template->assignMultiple([
-        'BASE_PATH' => Url::getBaseUri(),
+        'BASE_PATH' => UrlHelper::getBaseUri(),
         'NONCE' => $nonce
     ]);
 

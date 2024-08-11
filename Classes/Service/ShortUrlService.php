@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Service;
 
-use Helper\General;
+use Helper\GeneralHelper;
 use Random\RandomException;
 
 /**
  * ShortURL Service
  *
  */
-class ShortUrl {
+class ShortUrlService {
 
     /**
      * Generate a short url
@@ -39,7 +39,7 @@ class ShortUrl {
      * @return void
      */
     public static function saveUrl(string $shortUrl, string $targetUrl, bool $notify = false, string $identifier = ''): void {
-        $fileName = General::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
+        $fileName = GeneralHelper::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
 
         $data = json_encode([
             'targetUrl' => $targetUrl,
@@ -78,7 +78,7 @@ class ShortUrl {
      * @return string
      */
     public static function getShortUrlDataFilePath(string $shortUrl): string {
-        return General::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
+        return GeneralHelper::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
     }
 
     /**
@@ -88,7 +88,7 @@ class ShortUrl {
      * @return void
      */
     public static function removeShortUrl(string $shortUrl): void {
-        unlink(General::getCallerPath() . '/data/' . trim($shortUrl) . '.url');
+        unlink(GeneralHelper::getCallerPath() . '/data/' . trim($shortUrl) . '.url');
     }
 
 }

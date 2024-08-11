@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Helper;
 
-class General {
+class GeneralHelper {
 
     /**
      * Returns the directory of the calling script

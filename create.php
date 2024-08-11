@@ -6,9 +6,9 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes
 use Helper\SecurityHelper;
-use Helper\Url;
+use Helper\UrlHelper;
 use Mail\Sendmail;
-use Service\ShortUrl;
+use Service\ShortUrlService;
 use Template\SimpleTemplateEngine;
 use Transform\CustomTransform;
 use Validation\FormValidation;
@@ -32,20 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     FormValidation::urlCorrectOrExit($targetUrl);
     
     // Generate short URL
-    $shortUrl = ShortUrl::generateShortUrl();
+    $shortUrl = ShortUrlService::generateShortUrl();
     
     // Custom transformations
     $shortUrl = CustomTransform::customTransformShortUrl($shortUrl);
     $targetUrl = CustomTransform::customTransformTargetUrl($targetUrl);
     
     // Save the shortURL with the targetURL
-    ShortUrl::saveUrl($shortUrl, $targetUrl, (bool)$notify, $identifier);
+    ShortUrlService::saveUrl($shortUrl, $targetUrl, (bool)$notify, $identifier);
 
     // Load template and set variables
     $template->loadTemplate('create-result');
     $template->assignMultiple([
-        'BASE_PATH' => Url::getBaseUri(),
-        'BASE_URL' => Url::getServerUrl(),
+        'BASE_PATH' => UrlHelper::getBaseUri(),
+        'BASE_URL' => UrlHelper::getServerUrl(),
         'SHORT_URL' => $shortUrl,
         'NONCE' => $nonce,
         'ENABLE_NOTIFY' => ( Sendmail::isNotifyConfigured() ) ? 'enabled' : 'disabled'
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     //     Load template, assign variables and render it
     $template->loadTemplate('create');
     $template->assignMultiple([
-        'BASE_PATH' => Url::getBaseUri(),
+        'BASE_PATH' => UrlHelper::getBaseUri(),
         'NONCE' => $nonce
     ]);
 

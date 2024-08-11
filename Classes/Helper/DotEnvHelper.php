@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Helper;
 
-class DotEnv {
+class DotEnvHelper {
 
     /**
      * Loads enviroment file (.env)
@@ -27,7 +27,7 @@ class DotEnv {
      */
     public static function loadDotEnv(): bool {
         // Path to .env file
-        $envFile = General::getCallerPath() . DIRECTORY_SEPARATOR . '.env';
+        $envFile = GeneralHelper::getCallerPath() . DIRECTORY_SEPARATOR . '.env';
 
         // Do something if .env exists
         if ( file_exists($envFile)) {

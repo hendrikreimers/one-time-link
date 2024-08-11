@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Template;
 
 use Exception;
-use Helper\General;
+use Helper\GeneralHelper;
 
 /**
  * Simple Template Engine
@@ -52,7 +52,7 @@ class SimpleTemplateEngine {
      */
     public function __construct(string|null $templatePath = null) {
         // Prepare path
-        $executingScriptPath = General::getCallerPath();
+        $executingScriptPath = GeneralHelper::getCallerPath();
         $defaultTemplatePath = implode(DIRECTORY_SEPARATOR, [
             // Ends with an empty value to add an ending slash to the path
             $executingScriptPath, 'Resources', 'Private', 'Templates', ''

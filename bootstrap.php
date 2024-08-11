@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use Helper\DotEnv;
+use Helper\DotEnvHelper;
 use Helper\SecurityHelper;
 
 ini_set('display_errors', 1);
@@ -23,7 +23,7 @@ spl_autoload_register(function ($class) {
 });
 
 // Loads .env file constants
-DotEnv::loadDotEnv();
+DotEnvHelper::loadDotEnv();
 
 // Force HTTPS
 SecurityHelper::forceHttps();
