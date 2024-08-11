@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace Helper;
 
+use Service\FileService;
+
 class DotEnvHelper {
+
+    protected static string $envFileName = '.env';
 
     /**
      * Loads enviroment file (.env)
@@ -26,12 +30,9 @@ class DotEnvHelper {
      * @return bool
      */
     public static function loadDotEnv(): bool {
-        // Path to .env file
-        $envFile = GeneralHelper::getCallerPath() . DIRECTORY_SEPARATOR . '.env';
-
         // Do something if .env exists
-        if ( file_exists($envFile)) {
-            $envContent = file_get_contents($envFile);
+        if ( FileService::fileExists(self::$envFileName, false)) {
+            $envContent = FileService::getContents(self::$envFileName, false);
 
             // Parse .env file
             if (preg_match_all('/([A-Z_]+)="?(.*[^"\r\n])"?/m', $envContent, $matches)) {

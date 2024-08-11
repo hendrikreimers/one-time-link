@@ -8,13 +8,14 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 use Helper\SecurityHelper;
 use Helper\UrlHelper;
 use Mail\Sendmail;
+use Service\FileService;
 use Service\ShortUrlService;
 use Template\SimpleTemplateEngine;
 use Validation\FormValidation;
 
 // Extract the short URL from current URL
 $shortUrl = ShortUrlService::extractShortUrl();
-$fileName = ShortUrlService::getShortUrlDataFilePath($shortUrl); // Prepare the file name
+$fileName = ShortUrlService::getShortUrlFileName($shortUrl); // Prepare the file name
 
 // Initialize Template Engine
 $template = new SimpleTemplateEngine();
@@ -22,9 +23,12 @@ $template = new SimpleTemplateEngine();
 // Send Nonce Header
 $nonce = SecurityHelper::sendAndGetNonce();
 
-if (file_exists($fileName)) {
+// First of all, drop old files if in .env set
+ShortUrlService::dropRetiredShortUrls();
+
+if (FileService::fileExists($fileName)) {
     // Load the data
-    $shortUrlData = ShortUrlService::getShortUrlData($fileName);
+    $shortUrlData = ShortUrlService::getShortUrlData($shortUrl);
     $targetUrl = $shortUrlData['targetUrl'];
     $notify = (bool)$shortUrlData['notify'];
     $identifier = $shortUrlData['identifier'];

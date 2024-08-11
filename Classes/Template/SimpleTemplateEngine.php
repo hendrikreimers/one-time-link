@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Template;
 
 use Exception;
-use Helper\GeneralHelper;
+use Service\FileService;
 
 /**
  * Simple Template Engine
@@ -52,10 +52,9 @@ class SimpleTemplateEngine {
      */
     public function __construct(string|null $templatePath = null) {
         // Prepare path
-        $executingScriptPath = GeneralHelper::getCallerPath();
         $defaultTemplatePath = implode(DIRECTORY_SEPARATOR, [
             // Ends with an empty value to add an ending slash to the path
-            $executingScriptPath, 'Resources', 'Private', 'Templates', ''
+            'Resources', 'Private', 'Templates', ''
         ]);
 
         // Use constructor path or default path instead
@@ -73,7 +72,7 @@ class SimpleTemplateEngine {
 
         // Load template content if file exists
         if ( file_exists($filePathAndName) ) {
-            $this->template = file_get_contents($filePathAndName);
+            $this->template = FileService::getContents($filePathAndName, false);
         } else throw new Exception('Template file not found: ' . $filePathAndName);
 
         return false;
@@ -100,7 +99,7 @@ class SimpleTemplateEngine {
 
         // Load template content if file exists
         if ( file_exists($filePathAndName) ) {
-            return file_get_contents($filePathAndName);
+            return FileService::getContents($filePathAndName, false);
         }
 
         return false;

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Service;
 
-use Helper\GeneralHelper;
 use Random\RandomException;
 
 /**
@@ -11,6 +10,8 @@ use Random\RandomException;
  *
  */
 class ShortUrlService {
+
+    protected static string $fileSuffix = '.url';
 
     /**
      * Generate a short url
@@ -39,7 +40,7 @@ class ShortUrlService {
      * @return void
      */
     public static function saveUrl(string $shortUrl, string $targetUrl, bool $notify = false, string $identifier = ''): void {
-        $fileName = GeneralHelper::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
+        $fileName = trim($shortUrl) . self::$fileSuffix;
 
         $data = json_encode([
             'targetUrl' => $targetUrl,
@@ -47,18 +48,18 @@ class ShortUrlService {
             'identifier' => $identifier
         ]);
 
-        file_put_contents($fileName, trim($data));
+        FileService::writeFile($fileName, trim($data));
     }
 
     /**
      * Loads data for a ShortURL saved in file.
      * If it's the old format creates a data array.
      *
-     * @param string $fileName
+     * @param string $shortUrl
      * @return array
      */
-    public static function getShortUrlData(string $fileName): array {
-        $data = file_get_contents($fileName);
+    public static function getShortUrlData(string $shortUrl): array {
+        $data = FileService::getContents($shortUrl . self::$fileSuffix);
 
         if ( json_validate($data) ) {
             $result = json_decode($data, true);
@@ -77,8 +78,8 @@ class ShortUrlService {
      * @param string $shortUrl
      * @return string
      */
-    public static function getShortUrlDataFilePath(string $shortUrl): string {
-        return GeneralHelper::getCallerPath() . '/data/' . trim($shortUrl) . '.url';
+    public static function getShortUrlFileName(string $shortUrl): string {
+        return trim($shortUrl) . self::$fileSuffix;
     }
 
     /**
@@ -88,7 +89,31 @@ class ShortUrlService {
      * @return void
      */
     public static function removeShortUrl(string $shortUrl): void {
-        unlink(GeneralHelper::getCallerPath() . '/data/' . trim($shortUrl) . '.url');
+        FileService::deleteFile(trim($shortUrl) . self::$fileSuffix);
+    }
+
+    /**
+     * Removes unused ShortURLs after given number of days, set in .env file
+     *
+     * @return void
+     */
+    public static function dropRetiredShortUrls(): void {
+        if ( !defined('DELETE_UNUSED_SHORTURLS_AFTER_DAYS') ) {
+            return;
+        }
+
+        $oldShortUrls = FileService::getOldFiles(
+            FileService::getDataPath(false),
+            '*' . self::$fileSuffix,
+            intVal(DELETE_UNUSED_SHORTURLS_AFTER_DAYS),
+            true
+        );
+
+        if ( count($oldShortUrls) <= 0 ) return;
+
+        foreach ( $oldShortUrls as $shortUrlFile ) {
+            FileService::deleteFile($shortUrlFile);
+        }
     }
 
 }

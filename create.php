@@ -19,6 +19,9 @@ $template = new SimpleTemplateEngine();
 // Send nonce headers
 $nonce = SecurityHelper::sendAndGetNonce();
 
+// First of all, drop old files if in .env set
+ShortUrlService::dropRetiredShortUrls();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate input
     $targetUrl = FormValidation::getFilteredValue('url', FILTER_VALIDATE_URL);

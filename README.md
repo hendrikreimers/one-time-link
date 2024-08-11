@@ -22,6 +22,7 @@ This project provides a simple URL shortening service with a one-time use featur
 - **Obfuscation**: The target URL will be obfuscated, to prevent it from being saved in the browsers history.
 - **Notifications**: Optional E-Mail notifications if the ShortURL is hit.
 - **Dot Env File**: Support for .env file for configuration, like notifications.
+- **Automatic Cleanup**: If set in .env file, it automatically cleans unused shortURLs after X number of days.
 
 ## Usage
 
@@ -67,6 +68,8 @@ Here's an example .env file you need to place in the same folder of this project
     NOTIFICATION_EMAIL="webmaster@your-domain.com"
     NOTIFICATION_SUBJECT="One Time Link - Event"
     NOTIFICATION_HIDE_TARGET=1
+
+    DELETE_UNUSED_SHORTURLS_AFTER_DAYS=5
 
 ## License
 
