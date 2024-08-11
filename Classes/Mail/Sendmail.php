@@ -27,11 +27,14 @@ class Sendmail {
             $template->setTemplateExtension('.txt');
             $template->loadTemplate('mail');
 
+            // Hide target?
+            $hideTarget = defined('NOTIFICATION_HIDE_TARGET') ? (bool)NOTIFICATION_HIDE_TARGET : false;
+
             // Set template variables
             $template->assignMultiple([
                 'IDENTIFIER' => rawurldecode($identifier),
                 'SHORT_URL' => $shortUrl,
-                'TARGET_URL' => $targetUrl
+                'TARGET_URL' => ( $hideTarget ) ? '---HIDDEN---' : $targetUrl
             ]);
 
             // Render template
