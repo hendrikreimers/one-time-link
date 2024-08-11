@@ -18,11 +18,7 @@ class Sendmail {
      * @throws Exception
      */
     public static function sendNotification(string $shortUrl, string $targetUrl, string $identifier = ''): void {
-        if (
-            defined('NOTIFICATION_EMAIL') &&
-            defined('NOTIFICATION_SUBJECT') &&
-            defined('NOTIFICATION_MESSAGE')
-        ) {
+        if ( self::isNotifyConfigured() ) {
             $to = NOTIFICATION_EMAIL;
             $subject = NOTIFICATION_SUBJECT;
 
@@ -44,6 +40,15 @@ class Sendmail {
             // Send mail
             mail($to,$subject,$msg);
         }
+    }
+
+    /**
+     * Checks if constants defined in .env file
+     *
+     * @return bool
+     */
+    public static function isNotifyConfigured(): bool {
+        return (defined('NOTIFICATION_EMAIL') && defined('NOTIFICATION_SUBJECT'));
     }
 
 }
