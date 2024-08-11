@@ -19,6 +19,9 @@ $fileName = ShortUrl::getShortUrlDataFilePath($shortUrl); // Prepare the file na
 // Initialize Template Engine
 $template = new SimpleTemplateEngine();
 
+// Send Nonce Header
+$nonce = SecurityHelper::sendAndGetNonce();
+
 if (file_exists($fileName)) {
     // Load the data
     $shortUrlData = ShortUrl::getShortUrlData($fileName);
@@ -34,12 +37,9 @@ if (file_exists($fileName)) {
     
     // Prepare url as data attribute
     $dataAttrUrl = base64_encode(htmlspecialchars($targetUrl, ENT_QUOTES, 'UTF-8'));
-    
-    // Send Nonce Header
-    $nonce = SecurityHelper::sendAndGetNonce();
 
     // Send notification mail
-    if ( $notify ) {
+    if ( $notify && Sendmail::isNotifyConfigured() ) {
         Sendmail::sendNotification($shortUrl, $targetUrl, $identifier);
     }
 
@@ -58,6 +58,12 @@ if (file_exists($fileName)) {
     //     Show not found
     header("HTTP/1.0 404 Not Found");
 
+    $template->loadTemplate('404');
+    $template->assignMultiple([
+        'BASE_PATH' => Url::getBaseUri(),
+        'NONCE' => $nonce
+    ]);
+
     // Send rendered template to browser
-    echo $template->getTemplate('404');
+    echo $template->render();
 }

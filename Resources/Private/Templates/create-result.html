@@ -7,15 +7,21 @@
     <meta http-equiv="expires" content="0" />
     <meta http-equiv="expires" content="Sat, 01 Jan 2000 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
-    <link rel="stylesheet" type="text/css" href="###BASE_PATH###/Resources/Public/style.css" nonce="###NONCE###">
+    <link rel="stylesheet" type="text/css" href="###BASE_PATH###/Resources/Public/Stylesheets/style.css" nonce="###NONCE###">
 </head>
 <body>
-    <div class="field">
-        Your one time shortURL: <input type="text" readonly value="###BASE_URL###/###SHORT_URL###" id="shorturl" />
+<div class="body">
+    <div class="head">
+        <h1>One Time Link</h1>
     </div>
-    <div class="field">
-        <a href="create.php">Create another one</a>
+    <div class="field row">
+        <label for="shorturl">Your one time shortURL:</label>
+        <input type="text" readonly value="###BASE_URL###/###SHORT_URL###" id="shorturl" />
     </div>
-    <script src="###BASE_PATH###/Resources/Public/script.js" id="script" nonce="###NONCE###"></script>
+    <div class="field button">
+        <a class="button" href="create.php">Create another one</a>
+    </div>
+    <script src="###BASE_PATH###/Resources/Public/Javascript/script.js" id="script" nonce="###NONCE###"></script>
+</div>
 </body>
 </html>

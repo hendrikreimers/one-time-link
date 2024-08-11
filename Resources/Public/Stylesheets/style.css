@@ -1,0 +1,130 @@
+/**
+ * -----------------------
+ * Main
+ */
+
+html, body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    color: #000;
+    overflow: hidden;
+    background: linear-gradient(0deg, rgb(232, 232, 232) 0%, rgb(200, 200, 200) 100%) no-repeat;
+    background-size: cover;
+    height: 100%;
+}
+
+body {
+    padding: 10px;
+    text-align: center;
+}
+
+html#redirect,
+html#redirect body {
+    background: #2c2c2c;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+}
+
+
+
+/**
+ * -----------------------
+ * Visual Body
+ */
+
+.body {
+    margin: 50px auto;
+    text-align: left;
+    max-width: 350px;
+    border: 4px solid rgba(33, 42, 62, 0.50);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+
+
+/**
+ * -----------------------
+ * Header
+ */
+
+.body .head {
+    border-radius: 15px 15px 0 0;
+    background-color: rgba(38, 54, 76, 0.84);
+    padding: 10px 20px;
+}
+
+.body .head h1 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 2rem;
+    font-weight: normal;
+    text-align: center;
+}
+
+
+
+/**
+ * -----------------------
+ * Form Groups
+ */
+
+.field {
+    margin: 20px;
+}
+
+.field.row label {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.field.row input {
+    width: 89%;
+}
+
+.field.button {
+    text-align: right;
+    padding: 20px 10px 10px 0;
+}
+
+.field.notify--disabled {
+    display: none;
+}
+
+
+
+/**
+ * -----------------------
+ * Form Fields
+ */
+
+.field label {
+    display: inline-block;
+    width: 100px;
+}
+
+.field input,
+.field button,
+.field .button {
+    border: 2px solid #ccc;
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+}
+
+.field button,
+.field .button {
+    padding: 10px 15px 8px 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: #eeeeee;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.field button:hover,
+.field .button:hover {
+    background-color: #d6d6d6;
+}

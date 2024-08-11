@@ -7,6 +7,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 // Used classes
 use Helper\SecurityHelper;
 use Helper\Url;
+use Mail\Sendmail;
 use Service\ShortUrl;
 use Template\SimpleTemplateEngine;
 use Transform\CustomTransform;
@@ -46,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'BASE_PATH' => Url::getBaseUri(),
         'BASE_URL' => Url::getServerUrl(),
         'SHORT_URL' => $shortUrl,
-        'NONCE' => $nonce
+        'NONCE' => $nonce,
+        'ENABLE_NOTIFY' => ( Sendmail::isNotifyConfigured() ) ? 'enabled' : 'disabled'
     ]);
 
     // Render template

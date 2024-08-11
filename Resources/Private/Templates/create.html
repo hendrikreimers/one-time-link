@@ -7,25 +7,30 @@
     <meta http-equiv="expires" content="0" />
     <meta http-equiv="expires" content="Sat, 01 Jan 2000 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
-    <link rel="stylesheet" type="text/css" href="###BASE_PATH###/Resources/Public/style.css" nonce="###NONCE###">
+    <link rel="stylesheet" type="text/css" href="###BASE_PATH###/Resources/Public/Stylesheets/style.css" nonce="###NONCE###">
 </head>
 <body>
-    <form method="post">
+<div class="body">
+    <div class="head">
+        <h1>One Time Link</h1>
+    </div>
+    <form method="post" action="create.php">
         <div class="field">
             <label for="url">Target URL:</label>
             <input type="url" name="url" id="url" required>
         </div>
-        <div class="field">
+        <div class="field notify notify--###ENABLE_NOTIFY###">
             <label for="notify">Notify:</label>
             <input type="checkbox" name="notify" id="notify">
         </div>
-        <div class="field">
+        <div class="field notify notify--###ENABLE_NOTIFY###">
             <label for="identifier">Notify Name:</label>
             <input type="text" name="identifier" id="identifier">
         </div>
-            <div class="field">
+        <div class="field button">
             <button type="submit">Create</button>
         </div>
     </form>
+</div>
 </body>
 </html>
