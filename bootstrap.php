@@ -26,7 +26,7 @@ spl_autoload_register(function ($class) {
 DotEnvHelper::loadDotEnv();
 
 // Force HTTPS
-//SecurityHelper::forceHttps();
+SecurityHelper::forceHttps();
 
 // Send security header
 SecurityHelper::sendDefaultHeaders();
