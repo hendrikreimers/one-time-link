@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Service;
 
+use Exception;
 use Random\RandomException;
 
 /**
@@ -20,7 +21,38 @@ class ShortUrlService {
      * @throws RandomException
      */
     public static function generateShortUrl(): string {
-        return bin2hex(random_bytes(4)); // Generates a random URL 8 characters long
+        // Initialize basic variables
+        $maxRetries = 10;
+        $numRetries = 0;
+        $shortUrlFound = false;
+
+        // Define the max fileName length (1 byte = 2 chars, 4 bytes = 8 chars)
+        $numBytes = ( defined('SHORTURL_FILENAME_MAXBYTES') ) ? SHORTURL_FILENAME_MAXBYTES : 4;
+
+        // Return initial value
+        $shortUrlName = '';
+
+        // Try to find a unique filename
+        while ( $numRetries < $maxRetries && $shortUrlFound === null ) {
+            $numRetries++;
+
+            // Generates a random URL 8 characters long
+            $shortUrlName = bin2hex(random_bytes($numBytes));
+            $fileName = $shortUrlName . self::$fileSuffix;
+
+            // Check if file exists
+            if ( !FileService::fileExists($fileName) ) {
+                $shortUrlFound = true;
+            }
+        }
+
+        // Max retries reached and no filename found error
+        if ( $shortUrlFound === false ) {
+            throw new Exception('Max retries ('. $maxRetries .'reached to generate a shortURL Filename');
+        }
+
+        // Everything is fine, return result (without file suffix)
+        return $shortUrlName;
     }
 
     /**

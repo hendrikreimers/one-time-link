@@ -71,6 +71,8 @@ Here's an example .env file you need to place in the same folder of this project
 
     DELETE_UNUSED_SHORTURLS_AFTER_DAYS=5
 
+    SHORTURL_FILENAME_MAXBYTES=4
+
 ## License
 
 This project is licensed under the MIT License.
