@@ -24,6 +24,10 @@ $nonce = SecurityHelper::sendAndGetNonce();
 ShortUrlService::dropRetiredShortUrls();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    /**
+     * Shows created ShortURL
+     */
+
     // Validate input
     $targetUrl = FormValidation::getFilteredValue('url', FILTER_VALIDATE_URL);
     $notify = FormValidation::getFilteredValue('notify', FILTER_VALIDATE_BOOLEAN);
@@ -54,8 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'NONCE' => $nonce
     ]);
 } else {
-    // Shows created ShortURL
-    //     Load template, assign variables and render it
+    /**
+     * Shows creation form
+     */
+
+    // Load template, assign variables and render it
     $template->loadTemplate('create');
     $template->assignMultiple([
         'BASE_PATH' => UrlHelper::getBaseUri(),
