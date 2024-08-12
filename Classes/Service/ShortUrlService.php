@@ -67,7 +67,7 @@ class ShortUrlService {
      *
      * @return string
      */
-    public static function extractShortUrl(): string {
+    public static function extractShortFromRequestUri(): string {
         return basename(preg_replace('/^.*\/([a-z0-9]{1,})$/i', '\\1', $_SERVER['REQUEST_URI']));
     }
 
@@ -81,7 +81,7 @@ class ShortUrlService {
      * @param string $identifier
      * @return void
      */
-    public static function saveUrl(string $shortUrl, string $targetUrl, string|null $password = null, bool $notify = false, string $identifier = ''): void {
+    public static function saveUrl(string $shortUrl, string $targetUrl, ?string $password = null, bool $notify = false, string $identifier = ''): void {
         $fileName = trim($shortUrl) . self::$fileSuffix;
 
         $data = json_encode([
@@ -108,7 +108,7 @@ class ShortUrlService {
      */
     public static function getShortUrlData(string $shortUrl): array {
         // Extract real shortURL and password if possible
-        list($shortUrl, $password) = self::getShortUrlAndPassword($shortUrl);
+        list($shortUrl, $password) = self::extractShortUrlAndPassword($shortUrl);
 
         // Get file content
         $data = FileService::getContents($shortUrl . self::$fileSuffix);
@@ -148,7 +148,7 @@ class ShortUrlService {
      */
     public static function getShortUrlFileName(string $shortUrl): string {
         // Extract real shortURL and password if possible
-        list($shortUrl, $password) = self::getShortUrlAndPassword($shortUrl);
+        list($shortUrl, $password) = self::extractShortUrlAndPassword($shortUrl);
 
         return trim($shortUrl) . self::$fileSuffix;
     }
@@ -161,7 +161,7 @@ class ShortUrlService {
      */
     public static function removeShortUrl(string $shortUrl): void {
         // Extract real shortURL and password if possible
-        list($shortUrl, $password) = self::getShortUrlAndPassword($shortUrl);
+        list($shortUrl, $password) = self::extractShortUrlAndPassword($shortUrl);
 
         FileService::deleteFile(trim($shortUrl) . self::$fileSuffix);
     }
@@ -191,12 +191,24 @@ class ShortUrlService {
     }
 
     /**
+     * Returns the full shortURL concatenated with the password.
+     * This version of the shortURL will be used in the URI
+     *
+     * @param string $shortUrl
+     * @param string|null $password
+     * @return string
+     */
+    public static function concatenateShortUrlAndPassword(string $shortUrl, ?string $password = null): string {
+        return ( $password !== null ) ? $shortUrl . $password : $shortUrl;
+    }
+
+    /**
      * Extract from the ShortURL string the real shortURL name and password if possible
      *
      * @param string $shortUrl
      * @return array
      */
-    private static function getShortUrlAndPassword(string $shortUrl): array {
+    private static function extractShortUrlAndPassword(string $shortUrl): array {
         // Get shortURL and password string length (num bytes multiplied to hex value, 2 chars per byte)
         $shortUrlLength = defined('SHORTURL_FILENAME_MAXBYTES') ? (intval(SHORTURL_FILENAME_MAXBYTES) * 2): (4 * 2);
         $passwordLength = defined('ENCRYPTION_RAND_PASS_MAXBYTES') ? (intval(ENCRYPTION_RAND_PASS_MAXBYTES) * 2) : (4 * 2);

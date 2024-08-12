@@ -15,7 +15,7 @@ use Template\SimpleTemplateEngine;
 use Validation\FormValidation;
 
 // Extract the short URL from current URL
-$shortUrl = ShortUrlService::extractShortUrl();
+$shortUrl = ShortUrlService::extractShortFromRequestUri();
 $fileName = ShortUrlService::getShortUrlFileName($shortUrl); // Prepare the file name
 
 // Initialize Template Engine

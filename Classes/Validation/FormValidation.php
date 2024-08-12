@@ -23,7 +23,7 @@ class FormValidation {
      * @param string $default
      * @return string
      */
-    public static function additionalSanitize(string|null $value, string $default = ''): string {
+    public static function additionalSanitize(?string $value, string $default = ''): string {
         if ( $value ) {
             $value = htmlspecialchars(strip_tags($value));
         } else $value = $default;

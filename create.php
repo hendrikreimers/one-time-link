@@ -50,22 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $template->assignMultiple([
         'BASE_PATH' => UrlHelper::getBaseUri(),
         'BASE_URL' => UrlHelper::getServerUrl(),
-        'SHORT_URL' => ( $shortUrlEncryptionPass ) ? $shortUrl . $shortUrlEncryptionPass : $shortUrl,
-        'NONCE' => $nonce,
-        'ENABLE_NOTIFY' => ( Sendmail::isNotifyConfigured() ) ? 'enabled' : 'disabled'
+        'SHORT_URL' => ShortUrlService::concatenateShortUrlAndPassword($shortUrl, $shortUrlEncryptionPass),
+        'NONCE' => $nonce
     ]);
-
-    // Render template
-    echo $template->render();
 } else {
     // Shows created ShortURL
     //     Load template, assign variables and render it
     $template->loadTemplate('create');
     $template->assignMultiple([
         'BASE_PATH' => UrlHelper::getBaseUri(),
-        'NONCE' => $nonce
+        'NONCE' => $nonce,
+        'ENABLE_NOTIFY' => ( Sendmail::isNotifyConfigured() ) ? 'enabled' : 'disabled'
     ]);
-
-    // Send rendered template to browser
-    echo $template->render();
 }
+
+// Render template and send output
+echo $template->render();

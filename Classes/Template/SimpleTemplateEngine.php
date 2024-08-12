@@ -37,7 +37,7 @@ class SimpleTemplateEngine {
     /**
      * @var string|null Loaded template string
      */
-    protected string|null $template = null;
+    protected ?string $template = null;
 
     /**
      * @var array Array of key/value pairs as variables to replace on rendering
@@ -50,7 +50,7 @@ class SimpleTemplateEngine {
      *
      * @param string|null $templatePath
      */
-    public function __construct(string|null $templatePath = null) {
+    public function __construct(?string $templatePath = null) {
         // Prepare path
         $defaultTemplatePath = implode(DIRECTORY_SEPARATOR, [
             // Ends with an empty value to add an ending slash to the path

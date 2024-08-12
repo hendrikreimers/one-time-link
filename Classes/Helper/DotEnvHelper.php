@@ -30,20 +30,42 @@ class DotEnvHelper {
      * @return bool
      */
     public static function loadDotEnv(): bool {
+        // Expression to identify key/value in each line
+        $lineExpr = '/^([A-Z_]+)="?(.*[^"\r\n])"?$/m';
+
         // Do something if .env exists
         if ( FileService::fileExists(self::$envFileName, false)) {
-            $envContent = FileService::getContents(self::$envFileName, false);
+            // Get file content and split to each line
+            $envContentLines = explode(PHP_EOL,
+                FileService::getContents(self::$envFileName, false)
+            );
+
+            // Nothing in there, so leave
+            if ( sizeof($envContentLines) <= 0) {
+                return false;
+            }
 
             // Parse .env file
-            if (preg_match_all('/([A-Z_]+)="?(.*[^"\r\n])"?/m', $envContent, $matches)) {
-                foreach ($matches[1] as $index => $key) {
-                    define(strtoupper($key), $matches[2][$index]);
+            foreach ( $envContentLines as $envContentLine ) {
+                if (preg_match($lineExpr, trim($envContentLine), $matches)) {
+                    // Check if result size is three (total match, key, value)
+                    if ( sizeof($matches) === 3 ) {
+                        // Unpack
+                        list($null, $key, $value) = $matches;
+
+                        // Define constant if not already done
+                        if ( !defined($key) ) {
+                            define($key, $value);
+                        }
+                    }
                 }
             }
 
+            // All fine
             return true;
         }
 
+        // Something went wrong
         return false;
     }
 
