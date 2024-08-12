@@ -91,7 +91,8 @@ class ShortUrlService {
         ]);
 
         // Encrypt data if encryption is enabled and configured
-        if ( defined('ENCRYPTION_SECRET') && strlen(ENCRYPTION_SECRET) > 0 ) {
+        if ( defined('ENCRYPTION_SECRET') && strlen(ENCRYPTION_SECRET) > 0 && $password !== null ) {
+            $password = self::buildFullPassword($shortUrl, $password); // More comple password
             $data = 'encrypted:' . EncryptionService::encryptString($data, $password, ENCRYPTION_SECRET);
         }
 
@@ -209,11 +210,25 @@ class ShortUrlService {
             // Extract password and real shortUrl fileName from shortUrl string
             $password = substr($shortUrl, $shortUrlLength);
             $shortUrl = substr($shortUrl, 0, $shortUrlLength);
+
+            // Combine to full password
+            $password = self::buildFullPassword($shortUrl, $password);
         } else {
             $password = null;
         }
 
         return [$shortUrl, $password];
+    }
+
+    /**
+     * Combines to the full more complex password
+     *
+     * @param string $shortUrl
+     * @param string $urlPassword
+     * @return string
+     */
+    private static function buildFullPassword(string $shortUrl, string $urlPassword): string {
+        return $shortUrl . ':' . $urlPassword;
     }
 
 }
