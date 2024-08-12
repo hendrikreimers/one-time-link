@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 // Defaults (Bootstrapping)
+const FRONTEND_CONTEXT = true;
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes
@@ -35,21 +36,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     FormValidation::urlCorrectOrExit($targetUrl);
     
     // Generate short URL
-    $shortUrl = ShortUrlService::generateShortUrl();
+    list($shortUrl, $shortUrlEncryptionPass) = ShortUrlService::generateShortUrl();
     
     // Custom transformations
     $shortUrl = CustomTransform::customTransformShortUrl($shortUrl);
     $targetUrl = CustomTransform::customTransformTargetUrl($targetUrl);
     
     // Save the shortURL with the targetURL
-    ShortUrlService::saveUrl($shortUrl, $targetUrl, (bool)$notify, $identifier);
+    ShortUrlService::saveUrl($shortUrl, $targetUrl, $shortUrlEncryptionPass, (bool)$notify, $identifier);
 
     // Load template and set variables
     $template->loadTemplate('create-result');
     $template->assignMultiple([
         'BASE_PATH' => UrlHelper::getBaseUri(),
         'BASE_URL' => UrlHelper::getServerUrl(),
-        'SHORT_URL' => $shortUrl,
+        'SHORT_URL' => ( $shortUrlEncryptionPass ) ? $shortUrl . $shortUrlEncryptionPass : $shortUrl,
         'NONCE' => $nonce,
         'ENABLE_NOTIFY' => ( Sendmail::isNotifyConfigured() ) ? 'enabled' : 'disabled'
     ]);

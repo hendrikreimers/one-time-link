@@ -23,6 +23,7 @@ This project provides a simple URL shortening service with a one-time use featur
 - **Notifications**: Optional E-Mail notifications if the ShortURL is hit.
 - **Dot Env File**: Support for .env file for configuration, like notifications.
 - **Automatic Cleanup**: If set in .env file, it automatically cleans unused shortURLs after X number of days.
+- **Encryption (Optional)**: Optional encryption of the shortURL Data. See `cli-initialize-encryption.php` for more.
 
 ## Usage
 
@@ -50,7 +51,8 @@ This project provides a simple URL shortening service with a one-time use featur
 2. Ensure the `data/` directory is writable by the web server user, as this is where URL mappings are stored.
 3. Configure your `.htpasswd` for securing the `create.php` file: `htpasswd -c ./data/.htpasswd YOUR_USERNAME`
 5. Modify `.htacces` in project folder on web server to set the **absolute path** to your .htpasswd file
-4. Access `create.php` to start creating short URLs.
+5. OPTIONAL: Initialize encryption mode: Run on command line `php ./cli-initialize-encryption.php`
+6. Access `create.php` to start creating short URLs.
 
 ## DotEnv File
 
@@ -72,6 +74,9 @@ Here's an example .env file you need to place in the same folder of this project
     DELETE_UNUSED_SHORTURLS_AFTER_DAYS=5
 
     SHORTURL_FILENAME_MAXBYTES=4
+
+    ENCRYPTION_SECRET=YOUR_16_BYTES_SECRET___SEE_SCRIPT___cli-initialize-encryption
+    ENCRYPTION_RAND_PASS_MAXBYTES=4
 
 ## License
 

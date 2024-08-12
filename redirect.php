@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 // Defaults (Bootstrapping)
+const FRONTEND_CONTEXT = true;
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes

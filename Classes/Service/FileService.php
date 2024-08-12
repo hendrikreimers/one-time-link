@@ -59,15 +59,18 @@ class FileService {
      * @param string $file
      * @param string $contents
      * @param bool $onlyDataDir
+     * @param bool $append
      * @return bool
      */
-    public static function writeFile(string $file, string $contents, bool $onlyDataDir = true): bool {
+    public static function writeFile(string $file, string $contents, bool $onlyDataDir = true, bool $append = false): bool {
         $file = self::appendPath($file, $onlyDataDir);
 
-        if ( self::fileExists($file, $onlyDataDir) )
+        if ( self::fileExists($file, $onlyDataDir) && !$append )
             return false;
 
-        return (bool)file_put_contents($file, $contents);
+        if ( $append ) {
+            return (bool)file_put_contents($file, $contents, FILE_APPEND);
+        } else return (bool)file_put_contents($file, $contents);
     }
 
     /**
@@ -86,6 +89,13 @@ class FileService {
         return unlink($file);
     }
 
+    /**
+     * Checks if the file exists
+     *
+     * @param string $fileName
+     * @param bool $onlyDataDir
+     * @return bool
+     */
     public static function fileExists(string $fileName, bool $onlyDataDir = true): bool {
         return file_exists(self::appendPath($fileName, $onlyDataDir));
     }

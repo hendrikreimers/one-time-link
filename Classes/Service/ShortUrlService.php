@@ -17,10 +17,11 @@ class ShortUrlService {
     /**
      * Generate a short url
      *
-     * @return string
+     * @return array
      * @throws RandomException
      */
-    public static function generateShortUrl(): string {
+    public static function generateShortUrl(): array
+    {
         // Initialize basic variables
         $maxRetries = 10;
         $numRetries = 0;
@@ -33,7 +34,7 @@ class ShortUrlService {
         $shortUrlName = '';
 
         // Try to find a unique filename
-        while ( $numRetries < $maxRetries && $shortUrlFound === null ) {
+        while ( $numRetries < $maxRetries && $shortUrlFound === false ) {
             $numRetries++;
 
             // Generates a random URL 8 characters long
@@ -48,11 +49,17 @@ class ShortUrlService {
 
         // Max retries reached and no filename found error
         if ( $shortUrlFound === false ) {
-            throw new Exception('Max retries ('. $maxRetries .'reached to generate a shortURL Filename');
+            throw new Exception('Max retries ('. $maxRetries .') reached to generate a shortURL Filename');
+        }
+
+        // If encryption is enabled generate a random password
+        $randPass = null;
+        if ( defined('ENCRYPTION_SECRET') && strlen(ENCRYPTION_SECRET) > 0 ) {
+            $randPass = bin2hex(random_bytes(defined('ENCRYPTION_RAND_PASS_MAXBYTES') ? intval(ENCRYPTION_RAND_PASS_MAXBYTES) : 4));
         }
 
         // Everything is fine, return result (without file suffix)
-        return $shortUrlName;
+        return [$shortUrlName, $randPass];
     }
 
     /**
@@ -69,9 +76,12 @@ class ShortUrlService {
      *
      * @param string $shortUrl
      * @param string $targetUrl
+     * @param string|null $password
+     * @param bool $notify
+     * @param string $identifier
      * @return void
      */
-    public static function saveUrl(string $shortUrl, string $targetUrl, bool $notify = false, string $identifier = ''): void {
+    public static function saveUrl(string $shortUrl, string $targetUrl, string|null $password = null, bool $notify = false, string $identifier = ''): void {
         $fileName = trim($shortUrl) . self::$fileSuffix;
 
         $data = json_encode([
@@ -79,6 +89,11 @@ class ShortUrlService {
             'notify' => $notify,
             'identifier' => $identifier
         ]);
+
+        // Encrypt data if encryption is enabled and configured
+        if ( defined('ENCRYPTION_SECRET') && strlen(ENCRYPTION_SECRET) > 0 ) {
+            $data = 'encrypted:' . EncryptionService::encryptString($data, $password, ENCRYPTION_SECRET);
+        }
 
         FileService::writeFile($fileName, trim($data));
     }
@@ -91,8 +106,28 @@ class ShortUrlService {
      * @return array
      */
     public static function getShortUrlData(string $shortUrl): array {
+        // Extract real shortURL and password if possible
+        list($shortUrl, $password) = self::getShortUrlAndPassword($shortUrl);
+
+        // Get file content
         $data = FileService::getContents($shortUrl . self::$fileSuffix);
 
+        // Decrypt if possible
+        if (
+            defined('ENCRYPTION_SECRET') &&
+            strlen(ENCRYPTION_SECRET) > 0 &&
+            $password !== null && strlen($password) > 0 &&
+            str_starts_with($data, 'encrypted:')
+        ) {
+            // Extract the encrypted data string
+            $identifier = strlen('encrypted:');
+            $encryptedData = substr($data, $identifier);
+
+            // Decrypt
+            $data = EncryptionService::decryptString($encryptedData, $password, ENCRYPTION_SECRET);
+        }
+
+        // Parse JSON if possible
         if ( json_validate($data) ) {
             $result = json_decode($data, true);
         } else $result = [
@@ -111,6 +146,9 @@ class ShortUrlService {
      * @return string
      */
     public static function getShortUrlFileName(string $shortUrl): string {
+        // Extract real shortURL and password if possible
+        list($shortUrl, $password) = self::getShortUrlAndPassword($shortUrl);
+
         return trim($shortUrl) . self::$fileSuffix;
     }
 
@@ -121,6 +159,9 @@ class ShortUrlService {
      * @return void
      */
     public static function removeShortUrl(string $shortUrl): void {
+        // Extract real shortURL and password if possible
+        list($shortUrl, $password) = self::getShortUrlAndPassword($shortUrl);
+
         FileService::deleteFile(trim($shortUrl) . self::$fileSuffix);
     }
 
@@ -146,6 +187,33 @@ class ShortUrlService {
         foreach ( $oldShortUrls as $shortUrlFile ) {
             FileService::deleteFile($shortUrlFile);
         }
+    }
+
+    /**
+     * Extract from the ShortURL string the real shortURL name and password if possible
+     *
+     * @param string $shortUrl
+     * @return array
+     */
+    private static function getShortUrlAndPassword(string $shortUrl): array {
+        // Get shortURL and password string length (num bytes multiplied to hex value, 2 chars per byte)
+        $shortUrlLength = defined('SHORTURL_FILENAME_MAXBYTES') ? (intval(SHORTURL_FILENAME_MAXBYTES) * 2): (4 * 2);
+        $passwordLength = defined('ENCRYPTION_RAND_PASS_MAXBYTES') ? (intval(ENCRYPTION_RAND_PASS_MAXBYTES) * 2) : (4 * 2);
+
+        // If encrypted extract the shortUrl and password if possible
+        if (
+            defined('ENCRYPTION_SECRET') &&
+            strlen(ENCRYPTION_SECRET) > 0 &&
+            strlen($shortUrl) === $shortUrlLength + $passwordLength
+        ) {
+            // Extract password and real shortUrl fileName from shortUrl string
+            $password = substr($shortUrl, $shortUrlLength);
+            $shortUrl = substr($shortUrl, 0, $shortUrlLength);
+        } else {
+            $password = null;
+        }
+
+        return [$shortUrl, $password];
     }
 
 }
