@@ -1,4 +1,5 @@
-window.addEventListener("DOMContentLoaded", (evt) => {
+
+function load() {
     const tag = document.querySelector('script#script');
     const shortUrlInput = document.querySelector('input#shorturl');
     let statusTimeout = null;
@@ -13,9 +14,9 @@ window.addEventListener("DOMContentLoaded", (evt) => {
     function setStatusDiv(type, msg) {
         const statusDiv = document.querySelector('div.status');
 
-        if ( statusTimeout ) clearTimeout(statusTimeout);
+        if (statusTimeout) clearTimeout(statusTimeout);
 
-        if ( statusDiv ) {
+        if (statusDiv) {
             statusDiv.classList.add(type);
             statusDiv.innerText = msg;
             statusTimeout = setTimeout(() => {
@@ -27,12 +28,12 @@ window.addEventListener("DOMContentLoaded", (evt) => {
     }
 
     // URL rewriter (without browser history)
-    if ( tag && tag.dataset.check ) {
+    if (tag && tag.dataset.check) {
         window.location.replace(atob(tag.dataset.check));
     }
 
     // On Input focus
-    if ( shortUrlInput ) {
+    if (shortUrlInput) {
         shortUrlInput.addEventListener('click', (evt) => {
             setTimeout(() => {
                 evt.target.focus();
@@ -52,4 +53,9 @@ window.addEventListener("DOMContentLoaded", (evt) => {
             }, 50);
         });
     }
-});
+}
+
+// If you load this script through a different JS loader, its helpful not to wait for Load event
+if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", () => load());
+} else load();
