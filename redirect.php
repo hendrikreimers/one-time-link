@@ -6,6 +6,7 @@ const FRONTEND_CONTEXT = true;
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes
+use Helper\ErrorMessageHelper;
 use Helper\SecurityHelper;
 use Helper\UrlHelper;
 use Mail\Sendmail;
@@ -14,15 +15,17 @@ use Service\ShortUrlService;
 use Template\SimpleTemplateEngine;
 use Validation\FormValidation;
 
+// Send Nonce Header
+$nonce = SecurityHelper::sendAndGetNonce();
+
+// Initiate classes
+$template = new SimpleTemplateEngine(); // Template Engine
+$errorMsgHelper = new ErrorMessageHelper($template, $nonce); // Error handling
+$formValidation = new FormValidation($errorMsgHelper);
+
 // Extract the short URL from current URL
 $shortUrl = ShortUrlService::extractShortFromRequestUri();
 $fileName = ShortUrlService::getShortUrlFileName($shortUrl); // Prepare the file name
-
-// Initialize Template Engine
-$template = new SimpleTemplateEngine();
-
-// Send Nonce Header
-$nonce = SecurityHelper::sendAndGetNonce();
 
 // First of all, drop old files if in .env set
 ShortUrlService::dropRetiredShortUrls();
@@ -34,11 +37,14 @@ if (FileService::fileExists($fileName)) {
     $notify = (bool)$shortUrlData['notify'];
     $identifier = $shortUrlData['identifier'];
 
+    // Check targetURL
+    $formValidation->urlCorrectOrExit($targetUrl);
+
+    // urlCorrectOrExit must be first, because if someone calls an encrypted ShortURL without the key
+    // it could happen, that it will get dropped before being decrypted
+    //
     // Delete file so that the URL can only be called up once
     ShortUrlService::removeShortUrl($shortUrl);
-
-    // Check targetURL
-    FormValidation::urlCorrectOrExit($targetUrl);
     
     // Prepare url as data attribute
     $dataAttrUrl = base64_encode(htmlspecialchars($targetUrl, ENT_QUOTES, 'UTF-8'));
@@ -60,15 +66,5 @@ if (FileService::fileExists($fileName)) {
     echo $template->render();
 } else {
     // Error handling
-    //     Show not found
-    header("HTTP/1.0 404 Not Found");
-
-    $template->loadTemplate('404');
-    $template->assignMultiple([
-        'BASE_PATH' => UrlHelper::getBaseUri(),
-        'NONCE' => $nonce
-    ]);
-
-    // Send rendered template to browser
-    echo $template->render();
+    $errorMsgHelper->sendNotFound();
 }

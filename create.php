@@ -6,6 +6,7 @@ const FRONTEND_CONTEXT = true;
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes
+use Helper\ErrorMessageHelper;
 use Helper\SecurityHelper;
 use Helper\UrlHelper;
 use Mail\Sendmail;
@@ -14,11 +15,13 @@ use Template\SimpleTemplateEngine;
 use Transform\CustomTransform;
 use Validation\FormValidation;
 
-// Initialize Template Engine
-$template = new SimpleTemplateEngine();
-
-// Send nonce headers
+// Send Nonce Header
 $nonce = SecurityHelper::sendAndGetNonce();
+
+// Initiate classes
+$template = new SimpleTemplateEngine(); // Template Engine
+$errorMsgHelper = new ErrorMessageHelper($template, $nonce); // Error handling
+$formValidation = new FormValidation($errorMsgHelper);
 
 // First of all, drop old files if in .env set
 ShortUrlService::dropRetiredShortUrls();
@@ -29,15 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      */
 
     // Validate input
-    $targetUrl = FormValidation::getFilteredValue('url', FILTER_VALIDATE_URL);
-    $notify = FormValidation::getFilteredValue('notify', FILTER_VALIDATE_BOOLEAN);
-    $identifier = FormValidation::getFilteredValue('identifier', FILTER_SANITIZE_ENCODED);
+    $targetUrl = $formValidation->getFilteredValue('url', FILTER_VALIDATE_URL);
+    $notify = $formValidation->getFilteredValue('notify', FILTER_VALIDATE_BOOLEAN);
+    $identifier = $formValidation->getFilteredValue('identifier', FILTER_SANITIZE_ENCODED);
 
     // Second sanitize of identifier string (used for notifications)
-    $identifier = FormValidation::additionalSanitize($identifier);
+    $identifier = $formValidation->additionalSanitize($identifier);
 
     // Check targetURL
-    FormValidation::urlCorrectOrExit($targetUrl);
+    $formValidation->urlCorrectOrExit($targetUrl);
     
     // Generate short URL
     list($shortUrl, $shortUrlEncryptionPass) = ShortUrlService::generateShortUrl();

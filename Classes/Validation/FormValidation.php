@@ -3,7 +3,19 @@ declare(strict_types=1);
 
 namespace Validation;
 
+use Exception;
+use Helper\ErrorMessageHelper;
+
 class FormValidation {
+
+    /**
+     * Constructor with dependency injection
+     *
+     * @param ErrorMessageHelper $errorMessageHelper
+     */
+    public function __construct(
+        private ErrorMessageHelper &$errorMessageHelper
+    ) {}
 
     /**
      * Returns a filtered input value
@@ -12,7 +24,7 @@ class FormValidation {
      * @param int $filter
      * @return mixed
      */
-    public static function getFilteredValue(string $varName, int $filter): mixed {
+    public function getFilteredValue(string $varName, int $filter): mixed {
         return filter_input(INPUT_POST, $varName, $filter);
     }
 
@@ -23,7 +35,7 @@ class FormValidation {
      * @param string $default
      * @return string
      */
-    public static function additionalSanitize(?string $value, string $default = ''): string {
+    public function additionalSanitize(?string $value, string $default = ''): string {
         if ( $value ) {
             $value = htmlspecialchars(strip_tags($value));
         } else $value = $default;
@@ -34,28 +46,25 @@ class FormValidation {
     /**
      * Checks if given URL is set and starts with http(s)
      *
-     * @param string $url
+     * @param string|false $url
      * @return void
+     * @throws Exception
      */
-    public static function urlCorrectOrExit(string $url): void {
+    public function urlCorrectOrExit(string | false $url): void {
         // Show error
         if ($url === false) {
-            echo "Wrong URL";
-            exit;
+            $this->errorMessageHelper->sendCustomBadRequest('Wrong URI');
         }
 
         // Check whether the URL begins with http:// or https://
         if (!preg_match('/^https?:\/\/.+/', $url)) {
-            echo "URL must start with http:// or https://";
-            exit;
+            $this->errorMessageHelper->sendCustomBadRequest('URL must start with http:// or https://');
         }
 
         // Further validation by URL parsing and checking specific host names or TLDs
         $parsedUrl = parse_url($url);
         if (!isset($parsedUrl['host']) || !in_array($parsedUrl['scheme'], ['http', 'https'])) {
-            echo "Wrong URL";
-            exit;
+            $this->errorMessageHelper->sendCustomBadRequest('Wrong URI Scheme');
         }
     }
-
 }
