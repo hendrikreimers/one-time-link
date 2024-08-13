@@ -56,6 +56,11 @@ class FormValidation {
             $this->errorMessageHelper->sendCustomBadRequest('Wrong URI');
         }
 
+        // Check if the URL is an unencrypted string
+        if ( str_starts_with($url, 'encrypted:') ) {
+            $this->errorMessageHelper->sendNotFound();
+        }
+
         // Check whether the URL begins with http:// or https://
         if (!preg_match('/^https?:\/\/.+/', $url)) {
             $this->errorMessageHelper->sendCustomBadRequest('URL must start with http:// or https://');
