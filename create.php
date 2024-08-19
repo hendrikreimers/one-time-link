@@ -33,10 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      */
 
     // Validate input
-    $targetUrl = $formValidation->getFilteredValue('url', FILTER_VALIDATE_URL);
-    $notify = $formValidation->getFilteredValue('notify', FILTER_VALIDATE_BOOLEAN);
-    $identifier = $formValidation->getFilteredValue('identifier', FILTER_SANITIZE_ENCODED);
-    $maxNumViews = $formValidation->getFilteredValue('maxNumViews', FILTER_VALIDATE_INT) ?: 1;
+    $targetUrl = (string)$formValidation->getFilteredValue('url', FILTER_VALIDATE_URL);
+    $notify = (bool)$formValidation->getFilteredValue('notify', FILTER_VALIDATE_BOOLEAN);
+    $identifier = (string)$formValidation->getFilteredValue('identifier', FILTER_SANITIZE_ENCODED);
+    $maxNumViews = (int)$formValidation->getFilteredValue('maxNumViews', FILTER_VALIDATE_INT) ?: 1;
 
     // Limit maxNumViews
     $maxNumViews = max(min($maxNumViews, 10), 1); // 1..10
