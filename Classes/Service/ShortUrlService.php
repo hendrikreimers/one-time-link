@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace Service;
 
+use Domain\Model\ShortUrl;
 use Exception;
 use Random\RandomException;
+use SodiumException;
+use function MongoDB\BSON\toJSON;
 
 /**
  * ShortURL Service
@@ -74,25 +77,22 @@ class ShortUrlService {
     /**
      * Saves the URL to file based on the short url name
      *
-     * @param string $shortUrl
-     * @param string $targetUrl
+     * @param ShortUrl $shortUrl
      * @param string|null $password
-     * @param bool $notify
-     * @param string $identifier
      * @return void
+     * @throws RandomException
+     * @throws SodiumException
      */
-    public static function saveUrl(string $shortUrl, string $targetUrl, ?string $password = null, bool $notify = false, string $identifier = ''): void {
-        $fileName = trim($shortUrl) . self::$fileSuffix;
+    public static function saveUrl(ShortUrl $shortUrlObj, ?string $password = null): void {
+        // Prepare fileName
+        $fileName = $shortUrlObj->getShortUrl() . self::$fileSuffix;
 
-        $data = json_encode([
-            'targetUrl' => $targetUrl,
-            'notify' => $notify,
-            'identifier' => $identifier
-        ]);
+        // Create shortURL JSON string
+        $data = $shortUrlObj->toJson();
 
         // Encrypt data if encryption is enabled and configured
         if ( defined('ENCRYPTION_SECRET') && strlen(ENCRYPTION_SECRET) > 0 && $password !== null ) {
-            $password = self::buildFullPassword($shortUrl, $password); // More comple password
+            $password = self::buildFullPassword($shortUrlObj->getShortUrl(), $password); // More comple password
             $data = 'encrypted:' . EncryptionService::encryptString($data, $password, ENCRYPTION_SECRET);
         }
 
@@ -104,9 +104,10 @@ class ShortUrlService {
      * If it's the old format creates a data array.
      *
      * @param string $shortUrl
-     * @return array
+     * @return ShortUrl
+     * @throws SodiumException
      */
-    public static function getShortUrlData(string $shortUrl): array {
+    public static function getShortUrlData(string $shortUrl): ShortUrl {
         // Extract real shortURL and password if possible
         list($shortUrl, $password) = self::extractShortUrlAndPassword($shortUrl);
 
@@ -130,12 +131,8 @@ class ShortUrlService {
 
         // Parse JSON if possible
         if ( json_validate($data) ) {
-            $result = json_decode($data, true);
-        } else $result = [
-            'targetUrl' => $data,
-            'notify' => false,
-            'identifier' => ''
-        ];
+            $result = ShortUrl::fromArray(array_merge(['shortUrl' => $shortUrl], json_decode($data, true)));
+        } else $result = new ShortUrl($shortUrl, $data);
 
         return $result;
     }
@@ -151,6 +148,18 @@ class ShortUrlService {
         list($shortUrl, $password) = self::extractShortUrlAndPassword($shortUrl);
 
         return trim($shortUrl) . self::$fileSuffix;
+    }
+
+    /**
+     * Returns the ShortURL password for recreation (numViewsLeft change)
+     *
+     * @param string $shortUrl
+     * @return string
+     */
+    public static function getShortUrlPassword(string $shortUrl): string {
+        list($shortUrl, $password) = self::extractShortUrlAndPassword($shortUrl);
+
+        return substr($password, strpos($password, ':') + 1);
     }
 
     /**

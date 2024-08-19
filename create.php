@@ -6,6 +6,7 @@ const FRONTEND_CONTEXT = true;
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 // Used classes
+use Domain\Model\ShortUrl;
 use Helper\ErrorMessageHelper;
 use Helper\SecurityHelper;
 use Helper\UrlHelper;
@@ -35,6 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $targetUrl = $formValidation->getFilteredValue('url', FILTER_VALIDATE_URL);
     $notify = $formValidation->getFilteredValue('notify', FILTER_VALIDATE_BOOLEAN);
     $identifier = $formValidation->getFilteredValue('identifier', FILTER_SANITIZE_ENCODED);
+    $maxNumViews = $formValidation->getFilteredValue('maxNumViews', FILTER_VALIDATE_INT) ?: 1;
+
+    // Limit maxNumViews
+    $maxNumViews = max(min($maxNumViews, 10), 1); // 1..10
 
     // Second sanitize of identifier string (used for notifications)
     $identifier = $formValidation->additionalSanitize($identifier);
@@ -44,13 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Generate short URL
     list($shortUrl, $shortUrlEncryptionPass) = ShortUrlService::generateShortUrl();
-    
+    $shortUrlObj = new ShortUrl($shortUrl, $targetUrl, $notify, $identifier, $maxNumViews);
+
     // Custom transformations
     $shortUrl = CustomTransform::customTransformShortUrl($shortUrl);
     $targetUrl = CustomTransform::customTransformTargetUrl($targetUrl);
     
     // Save the shortURL with the targetURL
-    ShortUrlService::saveUrl($shortUrl, $targetUrl, $shortUrlEncryptionPass, (bool)$notify, $identifier);
+    ShortUrlService::saveUrl($shortUrlObj, $shortUrlEncryptionPass);
 
     // Load template and set variables
     $template->loadTemplate('create-result');

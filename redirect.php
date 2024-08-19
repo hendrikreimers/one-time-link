@@ -27,31 +27,63 @@ $formValidation = new FormValidation($errorMsgHelper);
 $shortUrl = ShortUrlService::extractShortFromRequestUri();
 $fileName = ShortUrlService::getShortUrlFileName($shortUrl); // Prepare the file name
 
-// First of all, drop old files if in .env set
+// First of all, drop old files if in .env set (only based on file creation and modification date at this point)
 ShortUrlService::dropRetiredShortUrls();
 
 if (FileService::fileExists($fileName)) {
     // Load the data
     $shortUrlData = ShortUrlService::getShortUrlData($shortUrl);
-    $targetUrl = $shortUrlData['targetUrl'];
-    $notify = (bool)$shortUrlData['notify'];
-    $identifier = $shortUrlData['identifier'];
-
-    // Check targetURL
-    $formValidation->urlCorrectOrExit($targetUrl);
 
     // urlCorrectOrExit must be first, because if someone calls an encrypted ShortURL without the key
     // it could happen, that it will get dropped before being decrypted
     //
-    // Delete file so that the URL can only be called up once
-    ShortUrlService::removeShortUrl($shortUrl);
+    // Check targetURL
+    $formValidation->urlCorrectOrExit($shortUrlData->getTargetUrl());
+
+    // Check if isValid or should be dropped (based on internal timestamp now)
+    if ( defined('DELETE_UNUSED_SHORTURLS_AFTER_DAYS') ) {
+        $unusedAfterInSeconds = DELETE_UNUSED_SHORTURLS_AFTER_DAYS * 24 * 60 * 60;
+        $retirementTime = $shortUrlData->getTimestamp() + $unusedAfterInSeconds;
+
+        // File expired due timestamp
+        if ( $retirementTime < time() ) {
+            ShortUrlService::removeShortUrl($shortUrl);
+            $errorMsgHelper->sendNotFound();
+        }
+    }
+
+    // Lower the left views counter
+    $shortUrlData->setNumViewsLeft($shortUrlData->getNumViewsLeft()- 1);
+
+    // This should never happen (but who knows)
+    if ( $shortUrlData->getNumViewsLeft() < 0 ) {
+        ShortUrlService::removeShortUrl($shortUrl);
+        $errorMsgHelper->sendNotFound();
+    }
+
+    // Max views reached, drop the file
+    // or lower the counter and rewrite it
+    if ( $shortUrlData->getNumViewsLeft() === 0 ) {
+        ShortUrlService::removeShortUrl($shortUrl);
+    } else { // Set new counter and write new state
+        // Extract password for recreation
+        $password = ShortUrlService::getShortUrlPassword($shortUrl);
+
+        // Rewrite file with new count
+        FileService::deleteFile($fileName);
+        ShortUrlService::saveUrl($shortUrlData, $password);
+    }
     
-    // Prepare url as data attribute
-    $dataAttrUrl = base64_encode(htmlspecialchars($targetUrl, ENT_QUOTES, 'UTF-8'));
+    // Prepare url as data attribute for template
+    $dataAttrUrl = base64_encode(htmlspecialchars($shortUrlData->getTargetUrl(), ENT_QUOTES, 'UTF-8'));
 
     // Send notification mail
-    if ( $notify && Sendmail::isNotifyConfigured() ) {
-        Sendmail::sendNotification($shortUrl, $targetUrl, $identifier);
+    if ( $shortUrlData->isNotify() && Sendmail::isNotifyConfigured() ) {
+        Sendmail::sendNotification(
+            $shortUrlData->getShortUrl(),
+            $shortUrlData->getTargetUrl(),
+            $shortUrlData->getIdentifier()
+        );
     }
 
     // Load template and set variables
