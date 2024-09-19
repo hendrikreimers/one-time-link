@@ -54,6 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Custom transformations
     $shortUrl = CustomTransform::customTransformShortUrl($shortUrl);
     $targetUrl = CustomTransform::customTransformTargetUrl($targetUrl);
+
+    // Update to modified URLs
+    $shortUrlObj->setShortUrl($shortUrl);
+    $shortUrlObj->setTargetUrl($targetUrl);
     
     // Save the shortURL with the targetURL
     ShortUrlService::saveUrl($shortUrlObj, $shortUrlEncryptionPass);
