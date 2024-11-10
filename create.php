@@ -62,6 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Save the shortURL with the targetURL
     ShortUrlService::saveUrl($shortUrlObj, $shortUrlEncryptionPass);
 
+    // Send creation notification mail (if configured in .env)
+    Sendmail::sendCreateNotification(
+        $shortUrlObj->getShortUrl(),
+        $shortUrlObj->getTargetUrl(),
+        $shortUrlObj->getIdentifier()
+    );
+
     // Load template and set variables
     $template->loadTemplate('create-result');
     $template->assignMultiple([

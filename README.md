@@ -70,6 +70,7 @@ Here's an example .env file you need to place in the same folder of this project
     NOTIFICATION_EMAIL="webmaster@your-domain.com"
     NOTIFICATION_SUBJECT="One Time Link - Event"
     NOTIFICATION_HIDE_TARGET=1
+    NOTIFICATION_ON_CREATION=1
 
     DELETE_UNUSED_SHORTURLS_AFTER_DAYS=5
 
